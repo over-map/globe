@@ -17,50 +17,14 @@
     {
       "id": "background",
       "type": "background",
-      "paint": {"background-color": "#000000"}
+      "paint": {"background-color": "#D2D2C8"}
     },
     {
-      "id": "boundary-country:outline",
-      "type": "line",
+      "id": "water-ocean",
+      "type": "fill",
       "source": "versatiles-shortbread",
-      "source-layer": "boundaries",
-      "filter": [
-        "all",
-        ["==", "admin_level", 2],
-        ["!=", "maritime", true],
-        ["!=", "disputed", true],
-        ["!=", "coastline", true]
-      ],
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round",
-        "visibility": "none"
-      },
-      "paint": {
-        "line-color": "#DBF227",
-        "line-blur": 1,
-        "line-width": 1,
-        "line-opacity": 0.75
-      }
-    },
-    {
-      "id": "boundary-country-disputed:outline",
-      "type": "line",
-      "source": "versatiles-shortbread",
-      "source-layer": "boundaries",
-      "filter": [
-        "all",
-        ["==", "admin_level", 2],
-        ["==", "disputed", true],
-        ["!=", "maritime", true],
-        ["!=", "coastline", true]
-      ],
-      "layout": {"visibility": "visible"},
-      "paint": {
-        "line-width": 1,
-        "line-opacity": 1,
-        "line-color": "#DBF227"
-      }
+      "source-layer": "ocean",
+      "paint": {"fill-color": "#EFF1E6"}
     },
     {
       "id": "boundary-country",
@@ -80,7 +44,7 @@
         "visibility": "visible"
       },
       "paint": {
-        "line-color": "#DBF227",
+        "line-color": "#B6B7B2",
         "line-width": 1,
         "line-opacity": 1
       }
@@ -99,7 +63,7 @@
       ],
       "layout": {"line-cap": "square", "visibility": "visible"},
       "paint": {
-        "line-color": "#DBF227",
+        "line-color": "#B6B7B2",
         "line-width": 1,
         "line-dasharray": [2, 1]
       }
