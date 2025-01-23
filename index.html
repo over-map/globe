@@ -3,156 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>styles_selector</title>
-    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="icon" href="https://over-map.github.io/styles_selector/public/favicon.ico" type="image/x-icon">
-    <script src="https://unpkg.com/pmtiles@2.11.0/dist/index.js"></script>
+    <title>Interactive Globe with Shadow and Horizontal Rotation</title>
     <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100vh; }
-        
-        .style-control {
-            background: #fff;
-            border-radius: 4px;
-            padding: 8px;
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-        }
-        
-        .style-button {
-            display: block;
-            margin: 4px 0;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            background: #f8f8f8;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-            text-transform: capitalize;
-        }
-        
-        .style-button:hover {
-            background: #eee;
-        }
-
-        .style-button.active {
-            background: #e0e0e0;
-            font-weight: bold;
+        body { margin: 0; overflow: hidden; background-color: white; }
+        canvas { display: block; }
+        #mapCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2048px;
+            height: 1024px;
+            visibility: hidden;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.157.0/three.min.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
 </head>
 <body>
-<div id="map"></div>
-<script>
-class CustomNavigationControl {
-    onAdd(map) {
-        this._map = map;
-        this._container = document.createElement('div');
-        this._container.className = 'custom-navigation-control maplibregl-ctrl maplibregl-ctrl-group';
-        
-        const zoomInButton = document.createElement('button');
-        zoomInButton.className = 'maplibregl-ctrl-icon maplibregl-ctrl-zoom-in';
-        zoomInButton.type = 'button';
-        zoomInButton.title = 'Zoom In';
-        zoomInButton.innerHTML = '+';
-        zoomInButton.onclick = () => this._map.zoomTo(this._map.getZoom() + 1);
-        this._container.appendChild(zoomInButton);
-        
-        const zoomOutButton = document.createElement('button');
-        zoomOutButton.className = 'maplibregl-ctrl-icon maplibregl-ctrl-zoom-out';
-        zoomOutButton.type = 'button';
-        zoomOutButton.title = 'Zoom Out';
-        zoomOutButton.innerHTML = '−';
-        zoomOutButton.onclick = () => this._map.zoomTo(this._map.getZoom() - 1);
-        this._container.appendChild(zoomOutButton);
-        
-        const compassButton = document.createElement('button');
-        compassButton.className = 'maplibregl-ctrl-icon maplibregl-ctrl-compass';
-        compassButton.type = 'button';
-        compassButton.title = 'Reset Bearing';
-        compassButton.onclick = () => this._map.rotateTo(0);
-        compassButton.innerHTML = '↑';
-        this._container.appendChild(compassButton);
-        
-        return this._container;
-    }
-    
-    onRemove() {
-        this._container.parentNode.removeChild(this._container);
-        this._map = undefined;
-    }
-}
+    <div id="mapCanvas"></div>
+    <script>
+        // THREE.js Setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('white');
 
-class StyleSelectorControl {
-    onAdd(map) {
-        this._map = map;
-        this._container = document.createElement('div');
-        this._container.className = 'style-control maplibregl-ctrl';
-        
-        // Define available styles
-        const styles = [
-            { name: 'Verdant Depths', file: 'verdant_depths.json' },
-            { name: 'Soft Sunrise', file: 'soft_sunrise.json' },
-            { name: 'Autumn Embrace', file: 'autumn_embrace.json' }
-        ];
-        
-        // Create buttons for each style
-        styles.forEach(style => {
-            const button = document.createElement('button');
-            button.className = 'style-button';
-            button.textContent = style.name;
-            button.onclick = () => {
-                // Remove active class from all buttons
-                this._container.querySelectorAll('.style-button').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                // Add active class to clicked button
-                button.classList.add('active');
-                
-                // Set the new style
-                const styleUrl = `https://over-map.github.io/styles_selector/public/styles/${style.file}`;
-                map.setStyle(styleUrl);
-            };
-            
-            // Set active state for default style
-            if (style.file === 'style.json') {
-                button.classList.add('active');
-            }
-            
-            this._container.appendChild(button);
+        // Add fog to the scene with a soft pink hue that extends beyond the globe
+        scene.fog = new THREE.FogExp2(0xFFD0B6, 0.02); // Pink fog with a larger radius
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;  // Enable shadow mapping
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        // Sunlight - Directional Light to simulate sunlight
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(5, 5, 5);  // Position the sun
+        directionalLight.castShadow = true;  // Enable shadow casting
+        directionalLight.shadow.mapSize.width = 2048;  // Increase shadow resolution
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.shadow.camera.near = 0.1;  // Near clipping plane
+        directionalLight.shadow.camera.far = 10;  // Far clipping plane
+        scene.add(directionalLight);
+
+        // Globe Setup
+        const globeRadius = 5;
+        const globeGeometry = new THREE.SphereGeometry(globeRadius, 128, 128);
+        const placeholderTexture = new THREE.Color(0xe0e0e0);
+
+        // Matte material for the globe (less reflective)
+        const globeMaterial = new THREE.MeshStandardMaterial({ 
+            color: placeholderTexture,
+            roughness: 0.7, // Increase roughness for a matte effect
+            metalness: 0.1, // Reduce metallic effect
+            emissive: new THREE.Color(0xFFD0B6),  // Add slight emissive glow
+            emissiveIntensity: 0.3,
+            shadowSide: THREE.BackSide  // Ensure shadow is on the backside of the globe
         });
-        
-        return this._container;
-    }
-    
-    onRemove() {
-        this._container.parentNode.removeChild(this._container);
-        this._map = undefined;
-    }
-}
 
-// Initialize PMTiles protocol
-const protocol = new window.pmtiles.Protocol();
-maplibregl.addProtocol("pmtiles", protocol.tile);
+        const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+        globe.castShadow = true;  // Enable the globe to cast shadows
+        globe.receiveShadow = true;  // Allow the globe to receive shadows
+        scene.add(globe);
 
-const map = new maplibregl.Map({
-    container: 'map',
-    style: 'https://over-map.github.io/styles_selector/public/styles/autumn_embrace.json',
-    center: [-74.006, 40.7128], // New York City
-    zoom: 15,
-    pitch: 45
-});
+        // Halo Setup (Create a larger sphere to simulate the fog expanding around the globe)
+        const haloGeometry = new THREE.SphereGeometry(globeRadius + 2, 128, 128);  // Larger sphere for halo effect
+        const haloMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFD0B6,    // Pink color for the fog
+            opacity: 0.4,       // Semi-transparent fog
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,   // Ensures the fog blends nicely without being written to depth buffer
+        });
 
-// Add controls
-map.addControl(new CustomNavigationControl(), 'top-left');
-map.addControl(new StyleSelectorControl(), 'top-right');
+        const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+        scene.add(halo);
 
-// Add error handling
-map.on('error', (e) => {
-    console.error('Map error:', e);
-});
-</script>
+        // Camera setup
+        camera.position.z = 12;
+
+        // MapLibre GL Setup
+        const mapContainer = document.createElement('div');
+        mapContainer.id = 'mapCanvas';
+        document.body.appendChild(mapContainer);
+
+        const map = new maplibregl.Map({
+            container: 'mapCanvas',
+            style: 'https://over-map.github.io/globe/public/styles/style.json',
+            center: [0, 0],
+            zoom: 2,
+            pitch: 0,
+            bearing: 0,
+            interactive: false,
+            preserveDrawingBuffer: true,
+            projection: 'mercator'
+        });
+
+        let mapTexture;
+
+        map.on('load', () => {
+            const mapCanvas = map.getCanvas();
+            mapTexture = new THREE.CanvasTexture(mapCanvas);
+
+            mapTexture.minFilter = THREE.LinearFilter;
+            mapTexture.magFilter = THREE.LinearFilter;
+            mapTexture.encoding = THREE.sRGBEncoding;
+
+            globeMaterial.map = mapTexture;
+
+            // Animation Loop
+            function animate() {
+                if (mapTexture) mapTexture.needsUpdate = true;
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        });
+
+        // Mouse Interaction for Horizontal Rotation (Magnet Effect)
+        let isMouseDown = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let rotationSpeed = 0.005;
+
+        // Mouse Drag
+        document.addEventListener('mousedown', (event) => {
+            isMouseDown = true;
+            previousMousePosition = { x: event.clientX, y: event.clientY };
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        document.addEventListener('mousemove', (event) => {
+            if (isMouseDown) {
+                const deltaX = event.clientX - previousMousePosition.x;
+
+                // Rotate only horizontally (around the Y-axis)
+                globe.rotation.y += deltaX * rotationSpeed;
+                halo.rotation.y += deltaX * rotationSpeed;
+
+                previousMousePosition = { x: event.clientX, y: event.clientY };
+            } else {
+                // Magnet effect: rotate globe to mouse direction
+                const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+
+                const targetRotationY = mouseX * Math.PI;
+
+                globe.rotation.y += (targetRotationY - globe.rotation.y) * 0.1;
+                halo.rotation.y += (targetRotationY - halo.rotation.y) * 0.1;
+            }
+        });
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Error Handling
+        map.on('error', (e) => console.error('MapLibre Error:', e));
+    </script>
 </body>
 </html>
