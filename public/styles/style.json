@@ -10,10 +10,6 @@
       "type": "vector",
       "url": "https://vector.openstreetmap.org/shortbread_v1/tilejson.json"
     },
-    "overture-buildings": {
-        "type": "vector",
-        "url": "pmtiles://https://overturemaps-tiles-us-west-2-beta.s3.amazonaws.com/2024-12-18/buildings.pmtiles"
-    },
     "terrain": {
       "type": "raster-dem",
       "tiles": [
@@ -5502,42 +5498,6 @@
         "line-dasharray": [2, 2],
         "line-opacity": {"stops": [[8, 0], [8.5, 1]]}
       }
-    },
-    {
-      "id": "building-overture",
-      "type": "fill-extrusion",
-      "source": "overture-buildings",
-      "source-layer": "building",
-      "minzoom": 14.5,
-      "paint": {
-          "fill-extrusion-color": "#2C5870",
-          "fill-extrusion-height": [
-              "case",
-              ["==", ["get", "is_underground"], true], 0,
-              ["==", ["coalesce", ["get", "height"], ["get", "num_floors"]], null], 3,
-              ["coalesce", ["get", "height"], ["*", ["get", "num_floors"], 3], 3]
-          ],
-          "fill-extrusion-base": ["get", "min_height"],
-          "fill-extrusion-opacity": {"stops": [[14, 0], [15, 0.8]]}
-      }
-    },
-    {
-        "id": "building-part-overture",
-        "type": "fill-extrusion",
-        "source": "overture-buildings",
-        "source-layer": "building_part",
-        "minzoom": 14.5,
-        "paint": {
-            "fill-extrusion-color": "#2C5870",
-            "fill-extrusion-height": [
-                "case",
-                ["==", ["get", "is_underground"], true], 0,
-                ["==", ["coalesce", ["get", "height"], ["get", "num_floors"]], null], 3,
-                ["coalesce", ["get", "height"], ["*", ["get", "num_floors"], 3], 3]
-            ],
-            "fill-extrusion-base": ["get", "min_height"],
-            "fill-extrusion-opacity": {"stops": [[14, 0], [15, 0.8]]}
-        }
     },
     {
       "id": "poi-amenity",
