@@ -1,0 +1,16 @@
+{
+"name": "/Users/imbe/Desktop/_polygonise/ITA_pop_density_100_10_pbf",
+"description": "/Users/imbe/Desktop/_polygonise/ITA_pop_density_100_10_pbf",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "10",
+"center": "12.480469,41.902143,10",
+"bounds": "6.631250,35.492083,18.520417,47.089583",
+"antimeridian_adjusted_bounds": "6.631250,35.492083,18.520417,47.089583",
+"type": "overlay",
+"strategies": "[{\"tiny_polygons\":2149727},{\"tiny_polygons\":2149718},{\"tiny_polygons\":2149631},{\"tiny_polygons\":2454596},{\"tiny_polygons\":2326430},{\"dropped_as_needed\":361944,\"tiny_polygons\":2015376,\"tile_size_desired\":583076},{\"dropped_as_needed\":1112329,\"tiny_polygons\":1213537,\"tile_size_desired\":1205521},{\"dropped_as_needed\":1309552,\"tiny_polygons\":778445,\"tile_size_desired\":1511661,\"feature_count_desired\":250041},{\"dropped_as_needed\":751854,\"tiny_polygons\":2015,\"tile_size_desired\":1415351,\"feature_count_desired\":222594},{\"tiny_polygons\":1012},{\"tiny_polygons\":5}]",
+"format": "pbf",
+"generator": "tippecanoe v2.74.0",
+"generator_options": "tippecanoe -z10 -e /Users/imbe/Desktop/_polygonise/ITA_pop_density_100_10_pbf -pd -l ITA_pop_density_100 /Users/imbe/Desktop/_polygonise/output_geojson_file.json",
+"json": "{\"vector_layers\":[{\"id\":\"ITA_pop_density_100\",\"description\":\"\",\"minzoom\":0,\"maxzoom\":10,\"fields\":{\"DN\":\"Number\"}}],\"tilestats\":{\"layerCount\":1,\"layers\":[{\"layer\":\"ITA_pop_density_100\",\"count\":2149732,\"geometry\":\"Polygon\",\"attributeCount\":1,\"attributes\":[{\"attribute\":\"DN\",\"count\":710,\"type\":\"number\",\"values\":[0,1,10,100,101,102,1024,1029,103,1031,104,1046,105,1052,1058,106,1064,107,108,109,1092,11,110,111,1117,112,1121,113,114,1144,1147,115,116,117,118,119,1196,12,120,121,1210,122,123,124,125,126,127,128,129,13,130,131,1314,132,133,134,135,136,137,138,139,14,140,141,142,143,144,145,1452,146,147,148,1485,149,15,150,151,152,1523,1524,153,154,155,156,157,158,159,16,160,161,162,163,164,165,166,167,168,169,17,170],\"min\":0,\"max\":6633}]}]}}"
+}
